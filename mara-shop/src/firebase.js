@@ -3,7 +3,7 @@ import { getFirestore } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyD5TwHuLtmqaUZduOc4aSllMpvJsLiuIYA", // Aa sachi key che
+  apiKey: "AIzaSyD5TwHuLtmqaUZduOc4aSllMpvJsLiuIYA", 
   authDomain: "e-commerce-c9973.firebaseapp.com",
   projectId: "e-commerce-c9973",
   storageBucket: "e-commerce-c9973.firebasestorage.app",

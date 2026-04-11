@@ -40,9 +40,11 @@ function Admin() {
   }, []);
 
   const fetchProducts = async () => {
-    const q = query(collection(db, "products"), orderBy("createdAt", "desc"));
-    const snapshot = await getDocs(q);
-    setProducts(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+    try {
+      const q = query(collection(db, "products"), orderBy("createdAt", "desc"));
+      const snapshot = await getDocs(q);
+      setProducts(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+    } catch (err) { console.error("Fetch error:", err); }
   };
 
   const handleLogin = async (e) => {
@@ -53,11 +55,7 @@ function Admin() {
       alert("Login Successful!");
     } catch (error) {
       console.error("Firebase Error Code:", error.code);
-      if (error.code === 'auth/invalid-credential' || error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
-        alert("Email athva Password khoto che!");
-      } else {
-        alert("Login Failed: " + error.code);
-      }
+      alert("Login Failed: " + error.code);
     }
   };
 
@@ -77,8 +75,10 @@ function Admin() {
 
   const handleDelete = async (id) => {
     if (window.confirm("Delete karvu che?")) {
-      await deleteDoc(doc(db, "products", id));
-      fetchProducts();
+      try {
+        await deleteDoc(doc(db, "products", id));
+        fetchProducts();
+      } catch (err) { alert("Error deleting"); }
     }
   };
 
@@ -88,8 +88,8 @@ function Admin() {
         <div style={{ maxWidth: '400px', margin: '0 auto', background: 'white', padding: '30px', borderRadius: '15px' }}>
           <h2 style={{ color: '#1a4d2e' }}>Admin Login</h2>
           <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
-            <input type="email" placeholder="Email" onChange={e => setEmail(e.target.value)} required style={{padding:'12px'}}/>
-            <input type="password" placeholder="Password" onChange={e => setPassword(e.target.value)} required style={{padding:'12px'}}/>
+            <input type="email" placeholder="Email" value={email} onChange={e => setEmail(e.target.value)} required style={{padding:'12px'}}/>
+            <input type="password" placeholder="Password" value={password} onChange={e => setPassword(e.target.value)} required style={{padding:'12px'}}/>
             <button type="submit" style={{padding:'12px', background:'#1a4d2e', color:'white', border:'none', cursor:'pointer'}}>Login</button>
           </form>
           <p style={{marginTop:'15px'}}><Link to="/">← Back to Store</Link></p>
@@ -133,9 +133,11 @@ function Home() {
 
   useEffect(() => {
     const getProducts = async () => {
-      const q = query(collection(db, "products"), orderBy("createdAt", "desc"));
-      const snap = await getDocs(q);
-      setProducts(snap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+      try {
+        const q = query(collection(db, "products"), orderBy("createdAt", "desc"));
+        const snap = await getDocs(q);
+        setProducts(snap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+      } catch (err) { console.error(err); }
       setLoading(false);
     };
     getProducts();
