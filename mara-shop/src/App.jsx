@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { HashRouter as Router, Routes, Route, Link, useLocation } from 'react-router-dom';
-import { db } from './firebase'; 
+import { db, auth } from './firebase';
 import { collection, getDocs, orderBy, query, addDoc, deleteDoc, doc, serverTimestamp } from "firebase/firestore"; 
 import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "firebase/auth";
 
