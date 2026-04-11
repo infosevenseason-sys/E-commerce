@@ -1,118 +1,120 @@
 import React, { useState, useEffect } from 'react';
-import { db } from '../firebase';
-import { collection, addDoc, getDocs, query, orderBy, deleteDoc, doc, updateDoc } from "firebase/firestore";
+import { db, auth } from '../firebase'; // Tamara path mujab sudharjo
+import { collection, addDoc, getDocs, deleteDoc, doc } from 'firebase/firestore';
+import { signOut } from 'firebase/auth';
 
-function Admin() {
+const AdminDashboard = () => {
+  const [products, setProducts] = useState([]);
   const [name, setName] = useState('');
   const [price, setPrice] = useState('');
-  const [imgUrl, setImgUrl] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [products, setProducts] = useState([]);
-  const [isEditing, setIsEditing] = useState(false);
-  const [currentId, setCurrentId] = useState(null);
+  const [imageUrl, setImageUrl] = useState('');
 
+  // Logout Function
+  const handleLogout = () => signOut(auth);
+
+  // Fetch Products
   const fetchProducts = async () => {
-    const q = query(collection(db, "products"), orderBy("createdAt", "desc"));
-    const snapshot = await getDocs(q);
-    setProducts(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+    const querySnapshot = await getDocs(collection(db, "products"));
+    setProducts(querySnapshot.docs.map(doc => ({ ...doc.data(), id: doc.id })));
   };
 
   useEffect(() => { fetchProducts(); }, []);
 
-  const handleSubmit = async (e) => {
+  // Add Product
+  const addProduct = async (e) => {
     e.preventDefault();
-    if (!name || !price || !imgUrl) return alert("Details bharo!");
-    setLoading(true);
-    try {
-      if (isEditing) {
-        await updateDoc(doc(db, "products", currentId), { productName: name, productPrice: Number(price), productImage: imgUrl });
-        alert("Updated!");
-      } else {
-        await addDoc(collection(db, "products"), { productName: name, productPrice: Number(price), productImage: imgUrl, createdAt: new Date() });
-        alert("Added!");
-      }
-      cancelEdit(); fetchProducts();
-    } catch (err) { alert(err.message); }
-    setLoading(false);
+    if (!name || !price || !imageUrl) return alert("Badhi detail bharo!");
+    await addDoc(collection(db, "products"), { name, price, imageUrl });
+    setName(''); setPrice(''); setImageUrl('');
+    fetchProducts();
   };
 
-  const startEdit = (p) => {
-    setIsEditing(true); setCurrentId(p.id); setName(p.productName); setPrice(p.productPrice); setImgUrl(p.productImage);
-  };
-
-  const cancelEdit = () => {
-    setIsEditing(false); setCurrentId(null); setName(''); setPrice(''); setImgUrl('');
-  };
-
+  // Delete Product
   const deleteProduct = async (id) => {
-    if (window.confirm("Delete karvu che?")) {
-      await deleteDoc(doc(db, "products", id)); fetchProducts();
+    if(window.confirm("Kharekhar delete karvu che?")) {
+      await deleteDoc(doc(db, "products", id));
+      fetchProducts();
     }
   };
 
   return (
-    <div style={{ display: 'flex', height: '100vh', width: '100vw', background: '#f4f7f6', position: 'fixed', top: 0, left: 0, zIndex: 9999 }}>
-      {/* SIDEBAR */}
-      <div style={{ width: '280px', background: '#1a4d2e', color: 'white', padding: '30px', display: 'flex', flexDirection: 'column' }}>
-        <h2 style={{ letterSpacing: '2px', borderBottom: '1px solid #257d63', pb: '10px' }}>GIR GHEE ADMIN</h2>
-        <div style={{ marginTop: '40px', flexGrow: 1 }}>
-          <div style={{ padding: '15px', background: '#257d63', borderRadius: '8px', cursor: 'pointer', marginBottom: '10px' }}>📦 Products</div>
-          <div style={{ padding: '15px', opacity: 0.6, cursor: 'not-allowed' }}>📊 Sales Reports</div>
-          <div style={{ padding: '15px', opacity: 0.6, cursor: 'not-allowed' }}>🛒 Orders</div>
-        </div>
-        <div style={{ borderTop: '1px solid #257d63', pt: '10px', fontSize: '14px' }}>Version 1.0.2</div>
+    <div style={styles.dashboardContainer}>
+      {/* Sidebar */}
+      <div style={styles.sidebar}>
+        <h2 style={styles.brandName}>Seven Season</h2>
+        <p style={styles.sidebarItem}>📊 Dashboard</p>
+        <p style={styles.sidebarItem}>📦 Products</p>
+        <p style={styles.sidebarItem}>🛒 Orders</p>
+        <button onClick={handleLogout} style={styles.logoutBtn}>Logout</button>
       </div>
 
-      {/* MAIN PANEL */}
-      <div style={{ flex: 1, padding: '40px', overflowY: 'auto' }}>
-        <h1 style={{ color: '#1a4d2e', marginTop: 0 }}>Dashboard</h1>
-        
-        <div style={{ display: 'flex', gap: '40px' }}>
-          {/* Form Card */}
-          <div style={{ background: 'white', padding: '30px', borderRadius: '20px', width: '400px', boxShadow: '0 10px 30px rgba(0,0,0,0.05)' }}>
-            <h3 style={{ marginBottom: '25px' }}>{isEditing ? "Sudharo Karo" : "Navu Product Umero"}</h3>
-            <form onSubmit={handleSubmit}>
-              <label style={labelStyle}>Product Name</label>
-              <input value={name} onChange={(e) => setName(e.target.value)} style={inputStyle} />
-              <label style={labelStyle}>Price (₹)</label>
-              <input type="number" value={price} onChange={(e) => setPrice(e.target.value)} style={inputStyle} />
-              <label style={labelStyle}>Image URL</label>
-              <input value={imgUrl} onChange={(e) => setImgUrl(e.target.value)} style={inputStyle} />
-              
-              <button type="submit" style={{ ...btnStyle, background: isEditing ? '#f39c12' : '#1a4d2e' }}>
-                {loading ? "Processing..." : isEditing ? "Update Product" : "Publish Product"}
-              </button>
-              {isEditing && <button onClick={cancelEdit} style={{ ...btnStyle, background: '#eee', color: '#333', marginTop: '10px' }}>Cancel</button>}
-            </form>
-          </div>
+      {/* Main Content */}
+      <div style={styles.mainContent}>
+        <div style={styles.header}>
+          <h1>Admin Dashboard</h1>
+          <p>Manage your A2 Gir Cow Ghee Inventory</p>
+        </div>
 
-          {/* Table Card */}
-          <div style={{ flex: 1, background: 'white', padding: '30px', borderRadius: '20px', boxShadow: '0 10px 30px rgba(0,0,0,0.05)' }}>
-            <h3>Inventory ({products.length})</h3>
-            <div style={{ marginTop: '20px' }}>
+        {/* Form Card */}
+        <div style={styles.card}>
+          <h3>Add New Product</h3>
+          <form onSubmit={addProduct} style={styles.formGrid}>
+            <input value={name} onChange={(e)=>setName(e.target.value)} placeholder="Product Name" style={styles.input} />
+            <input value={price} onChange={(e)=>setPrice(e.target.value)} placeholder="Price (₹)" style={styles.input} />
+            <input value={imageUrl} onChange={(e)=>setImageUrl(e.target.value)} placeholder="Image URL" style={styles.input} />
+            <button type="submit" style={styles.addBtn}>Add Product</button>
+          </form>
+        </div>
+
+        {/* Product Table */}
+        <div style={styles.card}>
+          <h3>Current Products</h3>
+          <table style={styles.table}>
+            <thead>
+              <tr style={styles.tableHeader}>
+                <th>Image</th>
+                <th>Name</th>
+                <th>Price</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
               {products.map(p => (
-                <div key={p.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '15px 0', borderBottom: '1px solid #f0f0f0' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
-                    <img src={p.productImage} alt="p" style={{ width: '60px', height: '60px', borderRadius: '10px', objectFit: 'cover' }} />
-                    <span style={{ fontWeight: '600' }}>{p.productName}</span>
-                  </div>
-                  <div>
-                    <button onClick={() => startEdit(p)} style={actionBtn}>Edit</button>
-                    <button onClick={() => deleteProduct(p.id)} style={{ ...actionBtn, color: 'red' }}>Delete</button>
-                  </div>
-                </div>
+                <tr key={p.id} style={styles.tableRow}>
+                  <td><img src={p.imageUrl} alt={p.name} style={styles.tableImg} /></td>
+                  <td>{p.name}</td>
+                  <td>₹{p.price}</td>
+                  <td>
+                    <button onClick={() => deleteProduct(p.id)} style={styles.deleteBtn}>Delete</button>
+                  </td>
+                </tr>
               ))}
-            </div>
-          </div>
+            </tbody>
+          </table>
         </div>
       </div>
     </div>
   );
-}
+};
 
-const inputStyle = { width: '100%', padding: '12px', borderRadius: '10px', border: '1px solid #ddd', marginBottom: '15px', boxSizing: 'border-box' };
-const labelStyle = { fontSize: '12px', fontWeight: 'bold', color: '#666', display: 'block', marginBottom: '5px' };
-const btnStyle = { width: '100%', padding: '14px', color: 'white', border: 'none', borderRadius: '10px', cursor: 'pointer', fontWeight: 'bold', fontSize: '16px' };
-const actionBtn = { background: 'none', border: 'none', cursor: 'pointer', color: '#1a4d2e', fontWeight: 'bold', marginLeft: '15px' };
+// --- PREMIUM STYLING ---
+const styles = {
+  dashboardContainer: { display: 'flex', minHeight: '100vh', backgroundColor: '#f8f9fa', fontFamily: 'Arial, sans-serif' },
+  sidebar: { width: '250px', backgroundColor: '#1a4d2e', color: 'white', padding: '20px', display: 'flex', flexDirection: 'column' },
+  brandName: { fontSize: '24px', fontWeight: 'bold', marginBottom: '40px', borderBottom: '1px solid #257d63', paddingBottom: '10px' },
+  sidebarItem: { padding: '12px 0', cursor: 'pointer', borderBottom: '1px solid #257d63', fontSize: '16px' },
+  logoutBtn: { marginTop: 'auto', padding: '10px', backgroundColor: '#e74c3c', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' },
+  mainContent: { flex: 1, padding: '30px' },
+  header: { marginBottom: '30px' },
+  card: { backgroundColor: 'white', padding: '20px', borderRadius: '10px', boxShadow: '0 4px 6px rgba(0,0,0,0.1)', marginBottom: '30px' },
+  formGrid: { display: 'grid', gridTemplateColumns: '1fr 1fr 1fr auto', gap: '15px', alignItems: 'center' },
+  input: { padding: '12px', border: '1px solid #ddd', borderRadius: '5px' },
+  addBtn: { padding: '12px 25px', backgroundColor: '#1a4d2e', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer', fontWeight: 'bold' },
+  table: { width: '100%', borderCollapse: 'collapse', marginTop: '15px' },
+  tableHeader: { backgroundColor: '#f4f4f4', textAlign: 'left' },
+  tableRow: { borderBottom: '1px solid #eee' },
+  tableImg: { width: '50px', height: '50px', borderRadius: '5px', objectFit: 'cover' },
+  deleteBtn: { padding: '5px 10px', backgroundColor: '#ff4d4d', color: 'white', border: 'none', borderRadius: '3px', cursor: 'pointer' }
+};
 
-export default Admin;
+export default AdminDashboard;
