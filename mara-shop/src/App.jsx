@@ -1,23 +1,3 @@
-// ... upar na imports ...
-import { auth, db } from './firebase';
-
-// Admin login function ma aa badlav check karjo:
-const handleLogin = async (e) => {
-  e.preventDefault();
-  try {
-    // email.trim() bau jaruri che
-    await signInWithEmailAndPassword(auth, email.trim(), password);
-    alert("Login Successful!");
-  } catch (error) {
-    console.error("Firebase Error Code:", error.code);
-    if (error.code === 'auth/invalid-credential') {
-      alert("Email athva Password khoto che!");
-    } else {
-      alert("Error: " + error.code);
-    }
-  }
-};
-// ... baki no code ...
 import React, { useState, useEffect } from 'react';
 import { HashRouter as Router, Routes, Route, Link, useLocation } from 'react-router-dom';
 import { db, auth } from './firebase'; 
@@ -68,9 +48,16 @@ function Admin() {
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
+      // email.trim() bau jaruri che
       await signInWithEmailAndPassword(auth, email.trim(), password);
+      alert("Login Successful!");
     } catch (error) {
-      alert("Login Failed! Email/Password check karo.");
+      console.error("Firebase Error Code:", error.code);
+      if (error.code === 'auth/invalid-credential' || error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
+        alert("Email athva Password khoto che!");
+      } else {
+        alert("Login Failed: " + error.code);
+      }
     }
   };
 
