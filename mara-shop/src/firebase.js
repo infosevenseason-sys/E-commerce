@@ -2,9 +2,8 @@ import { initializeApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
 
-// Aa configuration Screenshot (113) mujab che
 const firebaseConfig = {
-  apiKey: "AIzaSyD5TwHuLtmqaUZduOc4aSllMpvJsLiuIYA", 
+  apiKey: "AIzaSyD5TwHuLtmqaUZduOc4aSllMpvJsLiuIYA", // Aa sachi key che
   authDomain: "e-commerce-c9973.firebaseapp.com",
   projectId: "e-commerce-c9973",
   storageBucket: "e-commerce-c9973.firebasestorage.app",
