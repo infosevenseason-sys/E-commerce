@@ -3,7 +3,7 @@ import { getFirestore } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyD5TwHuLtmqaUZduOc4aSllMpvJsLiuIYA",
+  apiKey: "AIzaSyAQ-G453kPyEND6J6NTipMohJukGo3w9f0", // Sachi Key
   authDomain: "e-commerce-c9973.firebaseapp.com",
   projectId: "e-commerce-c9973",
   storageBucket: "e-commerce-c9973.firebasestorage.app",
@@ -15,4 +15,3 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 export const db = getFirestore(app);
 export const auth = getAuth(app);
-// final fix
