@@ -1,9 +1,10 @@
 import { initializeApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
-import { getAuth } from "firebase/auth"; // Auth import karyu
+import { getAuth } from "firebase/auth";
 
+// Aa configuration Screenshot (113) mujab che
 const firebaseConfig = {
-  apiKey: "AIzaSyD5TwHuLtmqaUZduOc4aSllMpvJsLiuIYA",
+  apiKey: "AIzaSyD5TwHuLtmqaUZduOc4aSllMpvJsLiuIYA", 
   authDomain: "e-commerce-c9973.firebaseapp.com",
   projectId: "e-commerce-c9973",
   storageBucket: "e-commerce-c9973.firebasestorage.app",
@@ -13,6 +14,5 @@ const firebaseConfig = {
 };
 
 const app = initializeApp(firebaseConfig);
-
 export const db = getFirestore(app);
-export const auth = getAuth(app); // Auth ne export karyu
+export const auth = getAuth(app);
